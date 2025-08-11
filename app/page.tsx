@@ -1,6 +1,6 @@
 'use client';
 
-import { Authenticated, Unauthenticated, useMutation, useQuery } from 'convex/react';
+import { Authenticated, AuthLoading, Unauthenticated, useConvexAuth, useMutation, useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import Link from 'next/link';
 import { useAuth } from '@workos-inc/authkit-nextjs/components';
@@ -8,6 +8,14 @@ import type { User } from '@workos-inc/node';
 
 export default function Home() {
   const { user, signOut } = useAuth();
+
+  const isServer = typeof window === 'undefined';
+  const authState = useConvexAuth();
+  if (isServer) {
+    console.log('on the server, convex auth state is', authState);
+  } else {
+    console.log('on the client, convex auth state is', authState);
+  }
 
   return (
     <>
@@ -20,6 +28,7 @@ export default function Home() {
         <Authenticated>
           <Content />
         </Authenticated>
+        <AuthLoading>Auth is still loading...</AuthLoading>
         <Unauthenticated>
           <SignInForm />
         </Unauthenticated>
@@ -52,7 +61,7 @@ function Content() {
   if (viewer === undefined || numbers === undefined) {
     return (
       <div className="mx-auto">
-        <p>loading... (consider a loading skeleton)</p>
+        <p>Client-fetched data is still loading... (consider a loading skeleton)</p>
       </div>
     );
   }
